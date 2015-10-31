@@ -1,0 +1,135 @@
+package controller;
+
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import model.CustomerUsageReport;
+
+import org.apache.commons.lang.StringUtils;
+
+import com.verizon.datausageengine.DataUsageNotifier;
+
+/**
+ * Servlet implementation class GenerateUsageReportController
+ */
+
+public class GenerateUsageReportController extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+
+	/**
+	 * @see HttpServlet#HttpServlet()
+	 */
+	public GenerateUsageReportController() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	/**
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
+	 *      response)
+	 */
+	@Override
+	protected void doPost(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException {
+		// PrintWriter outWriter = response.getWriter();
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(
+				"MM/dd/yyyy HH:mm");
+
+		SimpleDateFormat simpleDateFormat2 = new SimpleDateFormat(
+				"yyyy-MM-dd HH:mm:ss");
+
+		SimpleDateFormat simpleDateFormat3 = new SimpleDateFormat(
+				"MMM dd, yy HH:mm");
+
+		String customerId;
+		String fromDate;
+		String toDate;
+		String fromTime;
+		String toTime;
+		RequestDispatcher requestDispatcher = null;
+		try {
+			customerId = request.getParameter("customerId");
+			fromDate = request.getParameter("fromdate");
+			toDate = request.getParameter("todate");
+			fromTime = request.getParameter("fromtime");
+			toTime = request.getParameter("totime");
+
+			if (StringUtils.isEmpty(customerId)
+					|| StringUtils.isEmpty(fromDate)
+					|| StringUtils.isEmpty(toDate)
+					|| StringUtils.isEmpty(fromTime)
+					|| StringUtils.isEmpty(toTime)) {
+
+				request.setAttribute("errorMsg", "Enter valid data");
+				requestDispatcher = request
+						.getRequestDispatcher("generateusagereport.jsp");
+			} else {
+				StringUtils.trim(fromDate);
+				StringUtils.trim(toDate);
+				StringUtils.trim(fromTime);
+				StringUtils.trim(toTime);
+				System.out.println(fromDate + " " + fromTime);
+				System.out.println(toDate + " " + toTime);
+				Date from = simpleDateFormat.parse(fromDate + " " + fromTime);
+				Date to = simpleDateFormat.parse(toDate + " " + toTime);
+
+				String cassandraFrom = simpleDateFormat2.format(from);
+				String cassandraTo = simpleDateFormat2.format(to);
+				System.out.println(cassandraFrom + "/n" + cassandraTo);
+
+				DataUsageNotifier dataUsageNotifier = new DataUsageNotifier();
+				CustomerUsageReport customerUsageReport = dataUsageNotifier
+						.getCutomerUsage(customerId, cassandraFrom, cassandraTo);
+				if (customerUsageReport == null
+						|| customerUsageReport.getCustomDataUsed() < 1) {
+					request.setAttribute("errorMsg", "No records Found");
+					requestDispatcher = request
+							.getRequestDispatcher("generateusagereport.jsp");
+				} else {
+					customerUsageReport.setFromDate(simpleDateFormat3
+							.format(from));
+					customerUsageReport.setToDate(simpleDateFormat3.format(to));
+
+					request.setAttribute("customerUsageReport",
+							customerUsageReport);
+					requestDispatcher = request
+							.getRequestDispatcher("usagedashboard.jsp");
+				}
+			}
+
+			/*
+			 * int usagePercentage = 90; int usedData = 700;// in MB int maxData
+			 * = 1024;
+			 * 
+			 * int availableData = maxData - usedData; int usedDataPercentage =
+			 * (usedData / maxData) / 100; int availableDataPercentage =
+			 * (availableData / maxData) / 100;
+			 */
+
+			/*
+			 * request.setAttribute("usagePercentage", usagePercentage);
+			 * request.setAttribute("usedData", usedData);
+			 * request.setAttribute("availableData", availableData);
+			 * request.setAttribute("usedDataPercentage", usedDataPercentage);
+			 * request.setAttribute("availableDataPercentage",
+			 * availableDataPercentage);
+			 */
+
+			requestDispatcher.forward(request, response);
+
+		} catch (Exception e) {
+			System.out.println(e);
+			// outWriter.print("Exception " + e);
+			request.setAttribute("errorMsg", "Fatal Error Occrured");
+			requestDispatcher = request.getRequestDispatcher("error.jsp");
+			requestDispatcher.forward(request, response);
+		}
+	}
+}
