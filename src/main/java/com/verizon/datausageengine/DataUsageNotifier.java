@@ -130,7 +130,7 @@ public class DataUsageNotifier {
 		return tmp;
 	}
 
-	private static float getUsageInGB(Long usage) {
+	public static float getUsageInGB(Long usage) {
 		int size = 1024;
 		int value = (int) (usage / (size * size * size));
 		System.out.println("Usage:::" + usage + "+:GB is" + value);
