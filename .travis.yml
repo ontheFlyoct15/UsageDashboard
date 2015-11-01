@@ -1,7 +1,16 @@
 language: java
 sudo: required
 script: mvn package
-   
+  
+deploy:
+   edge: true
+   provider: cloudfoundry
+   username: enthuethi@gmail.com
+   password: DeceDece1
+   api: https://api.run.pivotal.io
+   organization: Helloworld-org
+   space: development   
+
 addons: 
    coverity_scan: 
      project: 
@@ -10,13 +19,4 @@ addons:
      notification_email: coolyogs@ymail.com
      build_command_prepend: "mvn clean" 
      build_command:"mvn -DskipTests=true compile" 
-     branch_pattern:coverity_scan	 
-
-deploy:
-   edge: true
-   provider: cloudfoundry
-   username: enthuethi@gmail.com
-   password: DeceDece1
-   api: https://api.run.pivotal.io
-   organization: Helloworld-org
-   space: development
+     branch_pattern:coverity_scan
