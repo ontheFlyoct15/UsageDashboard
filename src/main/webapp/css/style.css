@@ -49,9 +49,15 @@ table {
 
 
 body {
-  font: 13px/20px 'Lucida Grande', Tahoma, Verdana, sans-serif;
+  /*font: 13px/20px 'Lucida Grande', Tahoma, Verdana, sans-serif;
   color: #404040;
-  background: #0ca3d2;
+  background: #0ca3d2;*/
+  
+  background: #F5F5F5;
+	color: #333;
+	border: none;
+	font-family: 'Open Sans', sans-serif;
+	font-weight: 400;
 }
 
 .container {

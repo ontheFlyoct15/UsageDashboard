@@ -2,9 +2,11 @@
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" id="WebApp_ID" version="3.0">
   <display-name>OnTheFly</display-name>
   <welcome-file-list>
-  	<welcome-file>login.jsp</welcome-file>
-    <welcome-file>generateUsageReport.jsp</welcome-file>
-    <welcome-file>usagedashboard.jsp</welcome-file>
+  	 <welcome-file>adminlogin.jsp</welcome-file> 
+    <welcome-file>login.jsp</welcome-file> 
+    <welcome-file>generateUsageReport.jsp</welcome-file> 
+    <welcome-file>usagedashboard.jsp</welcome-file> 
+    <welcome-file>adminusagedashboard.jsp</welcome-file> 
   </welcome-file-list>
   <servlet>
     <display-name>GenerateUsageReportController</display-name>

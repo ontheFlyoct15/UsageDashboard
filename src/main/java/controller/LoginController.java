@@ -58,7 +58,8 @@ public class LoginController extends HttpServlet {
 						.getRequestDispatcher("generateusagereport.jsp");
 			} else {
 				request.setAttribute("errorMsg", "Incorrect Credentials");
-				requestDispatcher = request.getRequestDispatcher("login.jsp");
+				requestDispatcher = request
+						.getRequestDispatcher("adminlogin.jsp");
 			}
 			requestDispatcher.forward(request, response);
 		} catch (Exception e) {

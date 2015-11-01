@@ -10,6 +10,61 @@ public class CustomerUsageReport {
 	int customUsagePercentage;
 	int customDataUsed;
 
+	int todaysUsage;
+	int todaysPercentage;
+	int last7DaysUsage;
+	int last7DaysUsagePercentage;
+	int last30daysUsage;
+	int last30daysUsagePercentage;
+
+	public int getTodaysPercentage() {
+		return todaysPercentage;
+	}
+
+	public void setTodaysPercentage(int todaysPercentage) {
+		this.todaysPercentage = todaysPercentage;
+	}
+
+	public int getLast7DaysUsagePercentage() {
+		return last7DaysUsagePercentage;
+	}
+
+	public void setLast7DaysUsagePercentage(int last7DaysUsagePercentage) {
+		this.last7DaysUsagePercentage = last7DaysUsagePercentage;
+	}
+
+	public int getLast30daysUsagePercentage() {
+		return last30daysUsagePercentage;
+	}
+
+	public void setLast30daysUsagePercentage(int last30daysUsagePercentage) {
+		this.last30daysUsagePercentage = last30daysUsagePercentage;
+	}
+
+	public int getTodaysUsage() {
+		return todaysUsage;
+	}
+
+	public void setTodaysUsage(int todaysUsage) {
+		this.todaysUsage = todaysUsage;
+	}
+
+	public int getLast7DaysUsage() {
+		return last7DaysUsage;
+	}
+
+	public void setLast7DaysUsage(int last7DaysUsage) {
+		this.last7DaysUsage = last7DaysUsage;
+	}
+
+	public int getLast30daysUsage() {
+		return last30daysUsage;
+	}
+
+	public void setLast30daysUsage(int last30daysUsage) {
+		this.last30daysUsage = last30daysUsage;
+	}
+
 	String fromDate;
 	String toDate;
 

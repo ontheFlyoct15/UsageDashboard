@@ -55,7 +55,7 @@ public class DataUsageNotifierTest {
 	 */
 
 	@Test
-	public void testMBToGBConversion() {
+	public void testMBToGBConversion() throws Exception {
 		System.out.println("test MB to GB conversion");
 		long usage = 1024 * 1024 * 1024;// KB
 		int usageInGB = (int) dataUsageNotifier.getUsageInGB(usage);

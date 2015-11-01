@@ -1,6 +1,9 @@
 package com.verizon.datausageengine;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -13,7 +16,7 @@ import com.datastax.driver.core.Session;
 
 public class DataUsageNotifier {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		Cluster cluster = null;
 		Session session = null;
 		try {
@@ -92,7 +95,8 @@ public class DataUsageNotifier {
 
 	}
 
-	private static HashMap getActualUsage(Session sess, ArrayList mylist) {
+	private static HashMap getActualUsage(Session sess, ArrayList mylist)
+			throws Exception {
 		HashMap tmp = new HashMap();
 		int tmp1 = 0;
 		for (int i = 0; i < mylist.size(); i++) {
@@ -130,7 +134,7 @@ public class DataUsageNotifier {
 		return tmp;
 	}
 
-	public static float getUsageInGB(Long usage) {
+	public static float getUsageInGB(Long usage) throws Exception {
 		int size = 1024;
 		int value = (int) (usage / (size * size * size));
 		System.out.println("Usage:::" + usage + "+:GB is" + value);
@@ -138,7 +142,7 @@ public class DataUsageNotifier {
 	}
 
 	private static CustomerUsageReport getTotalUsage(Session session,
-			String customerId) {
+			String customerId) throws Exception {
 		final int maxUsageLimit = 150;// in GB
 
 		CustomerUsageReport totalUsage = new CustomerUsageReport();
@@ -191,7 +195,7 @@ public class DataUsageNotifier {
 
 	private static CustomerUsageReport CumptionbyTime(Session sess,
 			String customerId, String starttime, String endtime,
-			CustomerUsageReport customerUsageReport) {
+			CustomerUsageReport customerUsageReport) throws Exception {
 		System.out.println("custom usage " + starttime + " " + endtime);
 		long usage = 0;
 		String query = "select System.sum(usage) as usage from DATA_USAGE.CONSUMPTION where customerId='"
@@ -215,6 +219,70 @@ public class DataUsageNotifier {
 
 	}
 
+	public CustomerUsageReport getTodaysConsumption(String customerId,
+			String todaysDate, Session session,
+			CustomerUsageReport customerUsageReport) throws Exception {
+		String query = "select System.sum(usage) as usage from DATA_USAGE.CONSUMPTION where customerId='"
+				+ customerId + "' and startTime>='" + todaysDate + "'";
+
+		System.out.println(query);
+		ResultSet rs = session.execute(query);
+		long usage = 0;
+		for (Row row : rs) {
+			usage = row.getLong("usage");
+			System.out.println("us " + usage);
+		}
+		float usageGb = getUsageInGB(usage);
+		float usagePercentage = (usageGb / 150) * 100;
+		customerUsageReport.setTodaysUsage((int) usage);
+		customerUsageReport.setTodaysPercentage((int) usagePercentage);
+
+		return customerUsageReport;
+	}
+
+	public CustomerUsageReport getWeeklyConsumption(String customerId,
+			String todaysDate, Session session,
+			CustomerUsageReport customerUsageReport) throws Exception {
+		String query = "select System.sum(usage) as usage from DATA_USAGE.CONSUMPTION where customerId='"
+				+ customerId + "' and startTime>='" + todaysDate + "'";
+
+		System.out.println(query);
+		ResultSet rs = session.execute(query);
+		long usage = 0;
+		for (Row row : rs) {
+			usage = row.getLong("usage");
+			System.out.println("us " + usage);
+		}
+		float usageGb = getUsageInGB(usage);
+		float usagePercentage = (usageGb / 150) * 100;
+		customerUsageReport.setLast7DaysUsage((int) usageGb);
+		customerUsageReport.setLast7DaysUsagePercentage((int) usagePercentage);
+
+		return customerUsageReport;
+	}
+
+	public CustomerUsageReport getMonthlyConsumption(String customerId,
+			String todaysDate, Session session,
+			CustomerUsageReport customerUsageReport) throws Exception {
+
+		String query = "select System.sum(usage) as usage from DATA_USAGE.CONSUMPTION where customerId='"
+				+ customerId + "' and startTime>='" + todaysDate + "'";
+
+		System.out.println(query);
+		ResultSet rs = session.execute(query);
+		long usage = 0;
+		for (Row row : rs) {
+			usage = row.getLong("usage");
+			System.out.println("us " + usage);
+		}
+		float usageGb = getUsageInGB(usage);
+		float usagePercentage = (usageGb / 150) * 100;
+		customerUsageReport.setLast30daysUsage((int) usageGb);
+		customerUsageReport.setLast30daysUsagePercentage((int) usagePercentage);
+
+		return customerUsageReport;
+	}
+
 	public CustomerUsageReport getCutomerUsage(String customerId,
 			String cassandraFrom, String cassandraTo) throws Exception {
 		Cluster cluster = null;
@@ -222,7 +290,8 @@ public class DataUsageNotifier {
 		CustomerUsageReport customerUsageReport = null;
 		CustomerUsageReport customerUsageReport2 = null;
 		try {
-			cluster = Cluster.builder().addContactPoint("127.0.0.1").build();
+			cluster = Cluster.builder().addContactPoint("113.128.163.213")
+					.build();
 			session = cluster.connect("DATA_USAGE");
 			customerUsageReport = getTotalUsage(session, customerId);
 			if (null != customerUsageReport) {
@@ -235,5 +304,49 @@ public class DataUsageNotifier {
 			cluster.close();
 		}
 		return customerUsageReport2;
+	}
+
+	public CustomerUsageReport getUsageTrend(String customerId)
+			throws Exception {
+
+		Cluster cluster = null;
+		Session session = null;
+		CustomerUsageReport customerUsageReport = null;
+		try {
+			cluster = Cluster.builder().addContactPoint("113.128.163.213")
+					.build();
+			session = cluster.connect("DATA_USAGE");
+			customerUsageReport = getTotalUsage(session, customerId);
+			if (null != customerUsageReport) {
+				SimpleDateFormat simpleDateFormat = new SimpleDateFormat(
+						"yyyy-MM-dd HH:mm:ss");
+				Date date = new Date();
+				Calendar calendar = Calendar.getInstance();
+				calendar.setTime(date);
+
+				String todaysDate = simpleDateFormat.format(date);
+
+				calendar.add(calendar.DAY_OF_MONTH, -7);
+				String last7days = simpleDateFormat.format(calendar.getTime());
+				System.out.println(last7days);
+
+				calendar.add(calendar.DAY_OF_MONTH, -23);
+				String last30days = simpleDateFormat.format(calendar.getTime());
+				System.out.println(last30days);
+
+				customerUsageReport = getTodaysConsumption(customerId,
+						todaysDate, session, customerUsageReport);
+				customerUsageReport = getWeeklyConsumption(customerId,
+						last7days, session, customerUsageReport);
+				customerUsageReport = getMonthlyConsumption(customerId,
+						last30days, session, customerUsageReport);
+
+			}
+
+		} finally {
+			session.close();
+			cluster.close();
+		}
+		return customerUsageReport;
 	}
 }

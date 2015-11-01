@@ -45,14 +45,15 @@ public class GenerateUsageReportController extends HttpServlet {
 		SimpleDateFormat simpleDateFormat2 = new SimpleDateFormat(
 				"yyyy-MM-dd HH:mm:ss");
 
-		SimpleDateFormat simpleDateFormat3 = new SimpleDateFormat(
-				"MMM dd, yy HH:mm");
+		SimpleDateFormat simpleDateFormat3 = new SimpleDateFormat("MMM dd, yy");
 
 		String customerId;
 		String fromDate;
 		String toDate;
 		String fromTime;
 		String toTime;
+		String trend;
+
 		RequestDispatcher requestDispatcher = null;
 		try {
 			customerId = request.getParameter("customerId");
@@ -60,17 +61,20 @@ public class GenerateUsageReportController extends HttpServlet {
 			toDate = request.getParameter("todate");
 			fromTime = request.getParameter("fromtime");
 			toTime = request.getParameter("totime");
+			trend = request.getParameter("trend");
 
 			if (StringUtils.isEmpty(customerId)
 					|| StringUtils.isEmpty(fromDate)
 					|| StringUtils.isEmpty(toDate)
 					|| StringUtils.isEmpty(fromTime)
-					|| StringUtils.isEmpty(toTime)) {
+					|| StringUtils.isEmpty(toTime)
+					|| (StringUtils.isEmpty(trend))) {
 
 				request.setAttribute("errorMsg", "Enter valid data");
 				requestDispatcher = request
 						.getRequestDispatcher("generateusagereport.jsp");
-			} else {
+			} else if (StringUtils.isNotEmpty(trend)
+					&& trend.equalsIgnoreCase("calendarbased")) {
 				StringUtils.trim(fromDate);
 				StringUtils.trim(toDate);
 				StringUtils.trim(fromTime);
@@ -90,6 +94,7 @@ public class GenerateUsageReportController extends HttpServlet {
 				if (customerUsageReport == null
 						|| customerUsageReport.getCustomDataUsed() < 1) {
 					request.setAttribute("errorMsg", "No records Found");
+					request.setAttribute("customerId", customerId);
 					requestDispatcher = request
 							.getRequestDispatcher("generateusagereport.jsp");
 				} else {
@@ -97,31 +102,34 @@ public class GenerateUsageReportController extends HttpServlet {
 							.format(from));
 					customerUsageReport.setToDate(simpleDateFormat3.format(to));
 
+					request.setAttribute("flag", "calendarbased");
 					request.setAttribute("customerUsageReport",
 							customerUsageReport);
 					requestDispatcher = request
-							.getRequestDispatcher("usagedashboard.jsp");
+							.getRequestDispatcher("adminusagedashboard.jsp");
 				}
+			} else {
+				DataUsageNotifier dataUsageNotifier = new DataUsageNotifier();
+				CustomerUsageReport customerUsageReport = dataUsageNotifier
+						.getUsageTrend(customerId);
+
+				if (null != customerUsageReport) {
+					System.out.println("ser "
+							+ customerUsageReport.getLast7DaysUsage());
+
+					request.setAttribute("flag", "trendbased");
+					request.setAttribute("customerUsageReport",
+							customerUsageReport);
+					requestDispatcher = request
+							.getRequestDispatcher("adminusagedashboard.jsp");
+				} else {
+					request.setAttribute("errorMsg", "No records Found");
+					request.setAttribute("customerId", customerId);
+					requestDispatcher = request
+							.getRequestDispatcher("generateusagereport.jsp");
+				}
+
 			}
-
-			/*
-			 * int usagePercentage = 90; int usedData = 700;// in MB int maxData
-			 * = 1024;
-			 * 
-			 * int availableData = maxData - usedData; int usedDataPercentage =
-			 * (usedData / maxData) / 100; int availableDataPercentage =
-			 * (availableData / maxData) / 100;
-			 */
-
-			/*
-			 * request.setAttribute("usagePercentage", usagePercentage);
-			 * request.setAttribute("usedData", usedData);
-			 * request.setAttribute("availableData", availableData);
-			 * request.setAttribute("usedDataPercentage", usedDataPercentage);
-			 * request.setAttribute("availableDataPercentage",
-			 * availableDataPercentage);
-			 */
-
 			requestDispatcher.forward(request, response);
 
 		} catch (Exception e) {

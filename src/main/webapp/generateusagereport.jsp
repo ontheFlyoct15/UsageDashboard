@@ -1,3 +1,5 @@
+<%@page import="java.util.Date"%>
+<%@page import="java.text.SimpleDateFormat"%>
 <%@page import="org.apache.commons.lang.StringUtils"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
     pageEncoding="ISO-8859-1"%>
@@ -22,11 +24,13 @@
     	$( "#todate" ).datepicker();
   		});
  </script>
- 
+ <style type="text/css">
+			body { background: url(img/bg-login.jpg) !important; }
+		</style>
 </head>
 <body>
 <%
-String customerId=null;
+String customerId="";
 String errorMessage=null;
 
 if(null!=request.getAttribute("errorMsg"))
@@ -38,8 +42,11 @@ if(null!=request.getAttribute("customerId"))
 {
 	customerId=(String) request.getAttribute("customerId");
 }
-String currentDate="10/06/2015";
-String currentTime="11:11";
+SimpleDateFormat dateFormat1=new SimpleDateFormat("MM/dd/yyyy");
+SimpleDateFormat dateFormat2=new SimpleDateFormat("HH:mm");
+Date date=new Date();
+String currentDate=dateFormat1.format(date);
+String currentTime=dateFormat2.format(date);
 %>
 
   <div class="container">
@@ -52,7 +59,11 @@ String currentTime="11:11";
       <form method="post" action="GenerateUsageReportController">
 		<p><label>Customer Id</label>
 		<input type="text" id="customerId" name="customerId" value="<%= customerId%>" readonly="readonly"><p>
-
+		
+		<p><input type="radio" name="trend" id="trend" value="dayormonthly"><label>Weekly/Monthly Based</label></p>
+		
+		<p><input type="radio" name="trend" id="trend" value="calendarbased"><label>Calendar Based</label></p>
+		
 		<p><label>From Date</label>&nbsp;&nbsp;&nbsp;
 		<input type="text" id="fromdate" name="fromdate" value="<%=currentDate%>">&nbsp;
 		<input type="text" id="fromtime" name="fromtime" value="<%=currentTime%>" class="time" ></p>
