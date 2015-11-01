@@ -9,14 +9,4 @@ deploy:
    password: DeceDece1
    api: https://api.run.pivotal.io
    organization: Helloworld-org
-   space: development   
-
-addons: 
-   coverity_scan: 
-     project: 
-       name: "ontheFlyoct15/UsageDashboard" 
-       description: "Build submitted via Travis CI" 
-     notification_email: coolyogs@ymail.com
-     build_command_prepend: "mvn clean" 
-     build_command:"mvn -DskipTests=true compile" 
-     branch_pattern:coverity_scan
+   space: development
