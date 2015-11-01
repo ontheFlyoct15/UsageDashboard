@@ -290,7 +290,7 @@ public class DataUsageNotifier {
 		CustomerUsageReport customerUsageReport = null;
 		CustomerUsageReport customerUsageReport2 = null;
 		try {
-			cluster = Cluster.builder().addContactPoint("113.128.163.213")
+			cluster = Cluster.builder().addContactPoint("127.0.0.1")
 					.build();
 			session = cluster.connect("DATA_USAGE");
 			customerUsageReport = getTotalUsage(session, customerId);
@@ -313,7 +313,7 @@ public class DataUsageNotifier {
 		Session session = null;
 		CustomerUsageReport customerUsageReport = null;
 		try {
-			cluster = Cluster.builder().addContactPoint("113.128.163.213")
+			cluster = Cluster.builder().addContactPoint("127.0.0.1")
 					.build();
 			session = cluster.connect("DATA_USAGE");
 			customerUsageReport = getTotalUsage(session, customerId);
